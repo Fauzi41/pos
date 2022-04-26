@@ -57,10 +57,8 @@ def register():
 
 @app.route('/verify/<token>')
 def verify(token):
-  if db.shopper.find_one({ "token": token }):
-    myquery = { "verified":False }
-    newvalues = { "$set": { "verified":True } }
-    db.shopper.update_one(myquery, newvalues)
+  db.shopper.find_one_and_update({"token": token}, { '$set': { "verified" : True} })
+                        
   print(token)
   return redirect(url_for("profile"))
 
