@@ -1,4 +1,3 @@
-from lib2to3.pgen2 import token
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import pymongo
 import uuid
@@ -12,8 +11,8 @@ client = pymongo.MongoClient('localhost', 27017)
 db = client.flaskapp
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'codionapp@gmail.com'
-app.config['MAIL_PASSWORD'] = 'codion123'
+app.config['MAIL_USERNAME'] = 'email@xxxxxxx.com'
+app.config['MAIL_PASSWORD'] = 'password'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
@@ -24,7 +23,7 @@ def index():
     return render_template('signup.html')
   
 @app.route('/profile')
-def index():
+def profile():
     return render_template('profile.html')
 
 @app.route('/register', methods =['GET', 'POST'])
@@ -41,13 +40,27 @@ def register():
       return jsonify({ "error": "Email address already in use" }), 400
 
     if db.shopper.insert_one(user):
+      # email = request.form.get('email')
+      # subject = request.form.get('subject')
+      # body_message = request.form.get('message')
+      # print(email)
+      # print(subject)
+      # print(body_message)
       
-      return redirect(url_for("profile")
+      # msg = Message(subject=subject, sender = email, recipients = ['codionapp@gmail.com'])
+      # msg.body = str(msg) + body_message
+      # print(msg)
+      # mail.send(msg)
+      return redirect(url_for("profile"))
 
     return jsonify({ "error": "Signup failed" }), 400
 
 @app.route('/verify/<token>')
 def verify(token):
+  if db.shopper.find_one({ "token": token }):
+    myquery = { "verified":False }
+    newvalues = { "$set": { "verified":True } }
+    db.shopper.update_one(myquery, newvalues)
   print(token)
   return redirect(url_for("profile"))
 
